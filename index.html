@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG 중간 시나리오 - 성좌의 연회 & 서울 무법지대</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0d0f12;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+            overflow: hidden;
+        }
+        
+        /* 알림 메시지 레이어 */
+        #constellationToast {
+            position: fixed;
+            top: 20px;
+            background: rgba(251, 197, 49, 0.15);
+            border: 2px solid #fbc531;
+            box-shadow: 0 0 20px rgba(251, 197, 49, 0.4);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 100;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+        }
+        #constellationToast.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* 배후성 계약 스크린 */
+        #contractScreen {
+            background: #151a21;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 15px rgba(156, 136, 255, 0.2);
+            text-align: center;
+            max-width: 550px;
+            width: 90%;
+            border: 3px double #9c88ff;
+            display: none;
+        }
+        .contract-card {
+            background: #1e2530;
+            border: 2px dashed #9c88ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .contract-card:hover {
+            transform: scale(1.03);
+            background: #252e3c;
+            box-shadow: 0 0 15px rgba(156, 136, 255, 0.4);
+        }
+
+        /* 기존 캐릭터 선택 스크린 */
+        #charSelectScreen {
+            background: #1e272e;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        .char-card {
+            background: #2f3640;
+            border: 2px solid #718093;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 12px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .char-card:hover { transform: scale(1.02); }
+        .tier-myth { border-color: #e84118; }
+        .tier-myth:hover { background: #4c1c1c; border-color: #ff4d4d; }
+        .tier-epic { border-color: #fbc531; }
+        .tier-epic:hover { background: #4c441c; border-color: #fff04d; }
+        .tier-hero { border-color: #00a8ff; }
+        .tier-hero:hover { background: #1c3b4c; border-color: #4dabff; }
+        
+        .char-avatar { font-size: 35px; }
+        .char-info h3 { margin: 0 0 5px 0; }
+        .char-info p { margin: 0; font-size: 12px; color: #dcdde1; }
+
+        /* 게임 메인 레이아웃 */
+        .game-layout { display: none; gap: 20px; align-items: flex-start; }
+        .game-container { position: relative; background-color: #1e272e; padding: 15px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.7); }
+        canvas { background-color: #111; border: 4px solid #485460; border-radius: 6px; display: block; }
+        .sidebar { display: flex; flex-direction: column; gap: 12px; background: #181d24; padding: 15px; border-radius: 12px; border: 2px solid #2f3640; width: 200px; align-items: center; }
+        .minimap-title { font-size: 14px; font-weight: bold; color: #fbc531; }
+        #minimapCanvas { background: #000; border: 2px solid #485460; border-radius: 4px; }
+        
+        /* 전투 시스템 */
+        .battle-overlay {
+            position: absolute; top: 15px; left: 15px; width: 400px; height: 400px;
+            background: rgba(10, 15, 20, 0.98); border: 4px solid #e84118; border-radius: 6px;
+            display: flex; flex-direction: column; justify-content: space-between; padding: 20px; box-sizing: border-box;
+            visibility: hidden; opacity: 0; transition: opacity 0.3s ease; z-index: 10;
+        }
+        .battle-overlay.active { visibility: visible; opacity: 1; }
+        .battle-screen { display: flex; justify-content: space-between; align-items: center; height: 150px; }
+        .char-box { text-align: center; width: 45%; }
+        .hp-bar-bg { background: #485460; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px;}
+        .hp-bar-fill { height: 100%; background: #4cd137; width: 100%; transition: width 0.2s; }
+        .log-box { background: #000; height: 90px; overflow-y: auto; padding: 8px; border-radius: 4px; font-size: 12px; text-align: left; border: 1px solid #2f3640; }
+        .btn-grid { display: flex; gap: 10px; justify-content: center; }
+        .btn-grid button { background: #e15f41; border: none; color: white; padding: 10px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 3px 0 #b33921; }
+        .btn-grid button:active { transform: translateY(3px); box-shadow: none; }
+        
+        .nav-btn { width: 100%; border: none; padding: 8px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 5px; color: white; }
+        .exit-btn { background: #273c75; }
+        .reset-btn { background: #c23616; }
+        .instructions { margin-top: 5px; font-size: 11px; color: #dcdde1; text-align: center; line-height: 1.4;}
+        
+        .quest-box { background: #11141a; border: 1px solid #fbc531; padding: 6px; border-radius: 4px; font-size: 11px; width: 100%; box-sizing: border-box; text-align: left; color: #fbc531; }
+        .sponsor-box { background: #1b1326; border: 1px solid #9c88ff; padding: 6px; border-radius: 4px; font-size: 11px; width: 100%; box-sizing: border-box; text-align: left; color: #dcdde1; }
+
+        /* 다운로드 버튼 */
+        #dl-container {
+            margin-top: 20px;
+            z-index: 50;
+        }
+        .dl-btn {
+            background: #4cd137;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(76, 209, 55, 0.4);
+            transition: background 0.2s;
+        }
+        .dl-btn:hover { background: #44bd32; }
+    </style>
+</head>
+<body>
+
+<!-- 실시간 성좌 메시지 알림 토스트 -->
+<div id="constellationToast">⭐ 성좌가 당신을 눈여겨봅니다.</div>
+
+<!-- [새로운 화면] 시나리오 사이 단계: 배후성 계약 스크린 -->
+<div id="contractScreen">
+    <h2 style="color: #9c88ff; margin-top: 0;">✨ 개연성 충족: 배후성 계약 연회 ✨</h2>
+    <p style="color: #dcdde1; font-size: 13px; margin-bottom: 25px;">시나리오 사이에만 열리는 성좌들의 계약 제안입니다.<br>강력한 가호를 부여할 배후성을 선택하여 시나리오를 수월하게 수행하십시오.</p>
+    
+    <div class="contract-card" onclick="signSponsor('sun')">
+        <h3 style="color: #fbc531; margin: 0 0 5px 0;">☀️ [심연의 흑염룡]</h3>
+        <p style="font-size: 12px; color: #e1b12c; margin: 0;">계약 혜택: 시나리오 수행 영구 공격력 <span style="font-weight:bold; color:#fff;">+600</span> 추가 가호</p>
+    </div>
+    <div class="contract-card" onclick="signSponsor('justice')">
+        <h3 style="color: #00a8ff; margin: 0 0 5px 0;">⚖️ [정의의 심판관]</h3>
+        <p style="font-size: 12px; color: #4cd137; margin: 0;">계약 혜택: 화신의 최대 생명력 상한치 <span style="font-weight:bold; color:#fff;">+1500</span> 영구 추가</p>
+    </div>
+    <div class="contract-card" onclick="signSponsor('wealth')">
+        <h3 style="color: #4cd137; margin: 0 0 5px 0;">🪙 [황금 만능주의자]</h3>
+        <p style="font-size: 12px; color: #fbc531; margin: 0;">계약 혜택: 계약 시 즉시 보너스 코인 후원 <span style="font-weight:bold; color:#fff;">+5,000 🪙</span></p>
+    </div>
+</div>
+
+<!-- 기존 캐릭터 선택 스크린 -->
+<div id="charSelectScreen">
+    <h2 style="color: #fbc531; margin-top: 0;">🏙️ 시나리오 1: 서울 무법지대 🏙️</h2>
+    <p style="color: #dcdde1; font-size: 13px; margin-bottom: 20px;">인구밀도 최고 도시 서울. 화신이여, 수많은 타깃을 사냥하여 개연성 코인을 확보하십시오.</p>
+    
+    <div class="char-card tier-myth" onclick="selectJob('myth')">
+        <div class="char-avatar">🐎</div>
+        <div class="char-info">
+            <h3 style="color:#ff4d4d;">🔴 질투하는 카우보이 [신화급]</h3>
+            <p>초기 체력: 4110 | 초기 공격력: 1520</p>
+        </div>
+    </div>
+
+    <div class="char-card tier-epic" onclick="selectJob('epic')">
+        <div class="char-avatar">🤠</div>
+        <div class="char-info">
+            <h3 style="color:#fbc531;">💛 질투하는 목동 보안관 [설화급]</h3>
+            <p>초기 체력: 2595 | 초기 공격력: 812</p>
+        </div>
+    </div>
+
+    <div class="char-card tier-hero" onclick="selectJob('hero')">
+        <div class="char-avatar">🐑</div>
+        <div class="char-info">
+            <h3 style="color:#00a8ff;">🔵 질투하는 양치기 보안관 [위인급]</h3>
+            <p>초기 체력: 1585 | 초기 공격력: 410</p>
+        </div>
+    </div>
+</div>
+
+<!-- 필드 게임 화면 레이아웃 -->
+<div class="game-layout" id="mainGameLayout">
+    <div class="game-container">
+        <canvas id="fieldCanvas" width="400" height="400"></canvas>
+
+        <div class="battle-overlay" id="battleOverlay">
+            <h3 style="color: #e84118; margin: 0; text-align:center;">💥 서울 시가전 결투 💥</h3>
+            <div class="battle-screen">
+                <div class="char-box">
+                    <div id="p-emoji" style="font-size: 40px;">🤠</div>
+                    <div id="p-status-text" style="font-size: 14px; font-weight:bold;">화신</div>
+                    <div class="hp-bar-bg"><div id="p-hp-bar" class="hp-bar-fill"></div></div>
+                    <div id="p-hp-text" style="font-size:11px;">100/100</div>
+                </div>
