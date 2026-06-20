@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG 시나리오 통합본 - 서울 무법지대 & 거대 코뿔소의 독가스</title>
+    <title>RPG 시나리오 1 - 서울 무법지대 (밸런스 패치)</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -70,8 +70,8 @@
         .hp-bar-bg { background: #485460; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px;}
         .hp-bar-fill { height: 100%; background: #4cd137; width: 100%; transition: width 0.2s; }
         .log-box { background: #000; height: 90px; overflow-y: auto; padding: 8px; border-radius: 4px; font-size: 12px; text-align: left; border: 1px solid #2f3640; }
-        .btn-grid { display: flex; gap: 10px; justify-content: center; }
-        .btn-grid button { background: #e15f41; border: none; color: white; padding: 10px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 3px 0 #b33921; }
+        .btn-grid { display: flex; gap: 8px; justify-content: center; width: 100%; }
+        .btn-grid button { flex: 1; background: #e15f41; border: none; color: white; padding: 10px 0; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 3px 0 #b33921; font-size: 12px; }
         .btn-grid button:active { transform: translateY(3px); box-shadow: none; }
         
         .nav-btn { width: 100%; border: none; padding: 8px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 5px; color: white; }
@@ -84,10 +84,9 @@
 </head>
 <body>
 
-<!-- 직업/등급 선택 화면 -->
 <div id="charSelectScreen">
-    <h2 style="color: #fbc531; margin-top: 0;">🏙️ 포스트 아포칼립스 무법지대 🏙️</h2>
-    <p style="color: #dcdde1; font-size: 13px; margin-bottom: 20px;">국가가 붕괴한 무법천지 서울. 잔존 생명체들을 사냥하고 자금을 수금하십시오.</p>
+    <h2 style="color: #fbc531; margin-top: 0;">🏙️ 시나리오 1: 서울 유혈 지대 🏙️</h2>
+    <p style="color: #dcdde1; font-size: 13px; margin-bottom: 20px;">인구밀도 최고 도시 서울. 움직이는 수많은 생명을 학살하여 코인을 확보하십시오.</p>
     
     <div class="char-card tier-myth" onclick="selectJob('myth')">
         <div class="char-avatar">🐎</div>
@@ -114,14 +113,12 @@
     </div>
 </div>
 
-<!-- 메인 게임 레이아웃 -->
 <div class="game-layout" id="mainGameLayout">
     <div class="game-container">
         <canvas id="fieldCanvas" width="400" height="400"></canvas>
 
-        <!-- 전투 팝업 레이어 -->
         <div class="battle-overlay" id="battleOverlay">
-            <h3 id="battleTitle" style="color: #e84118; margin: 0; text-align:center;">💥 서울 시가전 결투 💥</h3>
+            <h3 style="color: #e84118; margin: 0; text-align:center;">💥 서울 시가전 결투 💥</h3>
             <div class="battle-screen">
                 <div class="char-box">
                     <div id="p-emoji" style="font-size: 40px;">🤠</div>
@@ -141,13 +138,13 @@
             <div class="btn-grid">
                 <button id="atkBtn" onclick="fightRound('attack')">⚔️ 공격</button>
                 <button id="healBtn" onclick="fightRound('heal')" style="background:#4cd137; box-shadow:0 3px 0 #44bd32;">✨ 정비</button>
+                <button id="runBtn" onclick="escapeBattle()" style="background:#718093; box-shadow:0 3px 0 #2f3640;">🏃 후퇴</button>
             </div>
         </div>
     </div>
 
-    <!-- 사이드바 스탯창 및 미니맵 -->
     <div class="sidebar">
-        <div class="minimap-title" id="minimapTitle">🛰️ 수도권 지상 광역 미니맵</div>
+        <div class="minimap-title">🛰️ 수도권 광역 미니맵</div>
         <canvas id="minimapCanvas" width="150" height="150"></canvas>
         <div style="border-top: 1px solid #2f3640; width: 100%; padding-top: 10px; font-size: 12px; line-height: 1.6;">
             <div class="quest-box" id="questStatus">
@@ -165,17 +162,9 @@
     </div>
 </div>
 
-<!-- 게임 하단 설명창 -->
 <div class="instructions" id="footerInfo" style="display:none;">
-    <div id="infoScenario1">
-        방향키 이동 | 🏃:부랑자 (약함) | 🥷:무장 약탈단 (강함/고액 코인)<br>
-        🌊:한강 (장벽) | 🌉:한강철교 (통로) | 🗼:폐허가 된 남산타워 | 🏢:버려진 아파트단지 | 🏰:용산 중앙본부<br>
-    </div>
-    <div id="infoScenario2" style="display:none;">
-        <span style="color:#ff4d4d; font-weight:bold;">⚠️ 거대 코뿔소의 독가스가 역 안까지 스며듭니다! 선로 외의 녹색 가스 구역 이동 시 HP -15!</span><br>
-        방향키 이동 | 🧟:식인종 변이체 (약함) | 💂:역사 사설 경비대 (강함/고액 코인)<br>
-        🛤️:지하철 선로 (독가스 안전지대) | 🪜:선로 건널목 (통로) | 🎰:지하 암시장 | ⛺:생존자 텐트촌 | 🚪:지하 통제실 가동장치<br>
-    </div>
+    방향키 이동 | 🏃:서울 시민 (약함) | 👮:수도 경비대 (강함/고액 코인)<br>
+    🌊:한강 (장벽) | 🌉:한강철교 (통로) | 🗼:남산타워 | 🏢:아파트단지 | 🏰:용산본부<br>
     <span style="color:#fbc531; font-size:11px;">💡 플레이어가 한 칸 움직일 때마다 서울의 수많은 사람들도 동시에 무작위 이동합니다.</span>
 </div>
 
@@ -196,7 +185,6 @@
     let playerEmoji = "🤠";
     let playerPos = { x: 5, y: 5 };
     let gameState = "select";
-    let currentScenario = 1; // 1: 지상 서울, 2: 거대 코뿔소 독가스 공습 (지하철역 내부)
 
     let citizens = []; 
     let playerCoin = 0; 
@@ -210,7 +198,7 @@
         if (gameState === "select" || gameState === "clear") return;
         const saveKey = `rpg_seoul_slot_${playerJob}`;
         const slotData = {
-            playerEmoji, playerPos, player, tileMap, fogMap, citizens, playerCoin, currentScenario
+            playerEmoji, playerPos, player, tileMap, fogMap, citizens, playerCoin
         };
         localStorage.setItem(saveKey, JSON.stringify(slotData));
     }
@@ -226,7 +214,6 @@
             player = parsed.player; tileMap = parsed.tileMap; fogMap = parsed.fogMap;
             citizens = parsed.citizens || [];
             playerCoin = parsed.playerCoin || 0;
-            currentScenario = parsed.currentScenario || 1;
             return true;
         } catch (e) { return false; }
     }
@@ -240,7 +227,7 @@
     }
 
     function resetAllData() {
-        if(confirm("모든 시나리오 데이터가 초기화됩니다. 계속하시겠습니까?")) {
+        if(confirm("서울 시나리오 데이터가 초기화됩니다. 계속하시겠습니까?")) {
             localStorage.removeItem("rpg_seoul_slot_myth");
             localStorage.removeItem("rpg_seoul_slot_epic");
             localStorage.removeItem("rpg_seoul_slot_hero");
@@ -253,17 +240,16 @@
         const hasSavedData = loadCharacterProgress(tier);
 
         if (hasSavedData) {
-            alert(`💾 데이터를 불러왔습니다. 세이브된 시나리오에서 재개합니다. [등급: ${getTierName(tier)}]`);
+            alert(`💾 서울에 재진입합니다. [등급: ${getTierName(tier)}]`);
         } else {
-            currentScenario = 1;
-            alert(`🏙️ 정부가 무너진 서울 폐허에 무법자가 당도했습니다! 생존자들을 처단하고 자금을 확보하십시오.`);
+            alert(`🏙️ Lv.100 무법자가 서울에 당도했습니다! 시민과 군경을 사냥해 자금을 뺏으세요.`);
             if (tier === 'myth') { player = { lv: 100, hp: 4110, maxHp: 4110, attack: 1520 }; playerEmoji = "🐎"; } 
             else if (tier === 'epic') { player = { lv: 100, hp: 2595, maxHp: 2595, attack: 812 }; playerEmoji = "🤠"; } 
             else if (tier === 'hero') { player = { lv: 100, hp: 1585, maxHp: 1585, attack: 410 }; playerEmoji = "🐑"; }
             playerPos = { x: 5, y: 5 };
             playerCoin = 0;
             initSeoulMap();
-            populateSeoul(15); 
+            populateSeoul(40); 
         }
 
         document.getElementById("p-emoji").innerText = playerEmoji;
@@ -272,7 +258,6 @@
         document.getElementById("mainGameLayout").style.display = "flex";
         document.getElementById("footerInfo").style.display = "block";
         
-        applyScenarioUI();
         updateQuestUI();
         gameState = "explore";
         clearFog();
@@ -291,43 +276,20 @@
         return "<span style='color:#00a8ff;'>🔵 양치기보안관 [위인]</span>";
     }
 
-    function applyScenarioUI() {
-        if (currentScenario === 1) {
-            document.getElementById("minimapTitle").innerText = "🛰️ 수도권 지상 광역 미니맵";
-            document.getElementById("infoScenario1").style.display = "block";
-            document.getElementById("infoScenario2").style.display = "none";
-        } else {
-            document.getElementById("minimapTitle").innerText = "☣️ 역내 가스 확산 센서 감지기";
-            document.getElementById("infoScenario1").style.display = "none";
-            document.getElementById("infoScenario2").style.display = "block";
-        }
-    }
-
     function updateQuestUI() {
         document.getElementById("targetCoin").innerText = playerCoin.toLocaleString();
         document.getElementById("stat-coin").innerText = `${playerCoin.toLocaleString()} 🪙`;
         
         const qBox = document.getElementById("questStatus");
-        if (currentScenario === 1) {
-            if(playerCoin >= 20000) {
-                qBox.style.borderColor = "#4cd137"; qBox.style.color = "#4cd137";
-                qBox.innerHTML = `<b>🎯 서울 장악 완료!</b> 🏰용산 중앙본부 진입권이 해제되었습니다.`;
-            } else {
-                qBox.style.borderColor = "#fbc531"; qBox.style.color = "#fbc531";
-                qBox.innerHTML = `<b>🎯 서울 수금 목표:</b> ${playerCoin.toLocaleString()} / 20,000 🪙`;
-            }
+        if(playerCoin >= 20000) {
+            qBox.style.borderColor = "#4cd137"; qBox.style.color = "#4cd137";
+            qBox.innerHTML = `<b>🎯 서울 장악 완료!</b> 🏰용산 중앙본부 진입권이 해제되었습니다.`;
         } else {
-            if(playerCoin >= 50000) {
-                qBox.style.borderColor = "#4cd137"; qBox.style.color = "#4cd137";
-                qBox.innerHTML = `<b>🎯 대피 성공 및 자금 확보!</b> 🚪지하 통제실 가동장치로 이동하세요!`;
-            } else {
-                qBox.style.borderColor = "#ff4d4d"; qBox.style.color = "#ff4d4d";
-                qBox.innerHTML = `<b>🎯 시나리오 2 목표:</b> 가스를 피해 생존하며 탈출 자금 ${playerCoin.toLocaleString()} / 50,000 🪙 달성`;
-            }
+            qBox.style.borderColor = "#fbc531"; qBox.style.color = "#fbc531";
+            qBox.innerHTML = `<b>🎯 서울 수금 목표:</b> ${playerCoin.toLocaleString()} / 20,000 🪙`;
         }
     }
 
-    // [시나리오 1 맵 생성] 지상 서울 폐허
     function initSeoulMap() {
         tileMap = []; fogMap = [];
         let hangangY = Math.floor(mapSize / 2); 
@@ -338,51 +300,22 @@
                 fogMap[y][x] = 0;
 
                 if (x === 0 || y === 0 || x === mapSize - 1 || y === mapSize - 1) {
-                    tileMap[y][x] = 1; // 외곽 숲/장벽
+                    tileMap[y][x] = 1; 
                 } 
                 else if (y === hangangY || y === hangangY + 1) {
-                    if (x === 20 || x === 40 || x === 60) tileMap[y][x] = 8; // 한강철교 다리
-                    else tileMap[y][x] = 7; // 한강 물줄기
+                    if (x === 20 || x === 40 || x === 60) tileMap[y][x] = 8; 
+                    else tileMap[y][x] = 7; 
                 } 
                 else {
                     let rand = Math.random();
-                    if (rand < 0.015) tileMap[y][x] = 11;      // 아파트단지
-                    else if (rand < 0.001) tileMap[y][x] = 12; // 남산타워
-                    else tileMap[y][x] = 0; // 일반 도로/폐허
+                    if (rand < 0.05) tileMap[y][x] = 11;      
+                    else if (rand < 0.005) tileMap[y][x] = 12; 
+                    else tileMap[y][x] = 0;
                 }
             }
         }
         tileMap[5][5] = 0; 
-        tileMap[mapSize - 5][5] = 3; // 용산 중앙본부 (지하철역 입구 겸용)
-    }
-
-    // [시나리오 2 맵 생성] 지하철 폐역 (독가스 유입 구역)
-    function initSubwayMap() {
-        tileMap = []; fogMap = [];
-        let trackY = Math.floor(mapSize / 2);
-
-        for (let y = 0; y < mapSize; y++) {
-            tileMap[y] = []; fogMap[y] = [];
-            for (let x = 0; x < mapSize; x++) {
-                fogMap[y][x] = 0;
-
-                if (x === 0 || y === 0 || x === mapSize - 1 || y === mapSize - 1) {
-                    tileMap[y][x] = 1; // 지하 콘크리트 외벽 외곽
-                } 
-                else if (y === trackY || y === trackY + 1) {
-                    if (x === 15 || x === 35 || x === 55) tileMap[y][x] = 14; // 🪜 선로 건널목
-                    else tileMap[y][x] = 13; // 🛤️ 지하철 선로 (독가스 안전지대)
-                } 
-                else {
-                    let rand = Math.random();
-                    if (rand < 0.015) tileMap[y][x] = 15;      // ⛺ 생존자 텐트촌
-                    else if (rand < 0.001) tileMap[y][x] = 16; // 🎰 지하 암시장
-                    else tileMap[y][x] = 0; // 일반 승강장/통로 바닥 (독가스 피해 위험지대)
-                }
-            }
-        }
-        tileMap[5][5] = 13; // 플레이어가 대피해 떨어지는 첫 위치 (선로 안전구역 보장)
-        tileMap[mapSize - 5][5] = 17; // 🚪 지하 통제실 밀폐 시스템 가동장치
+        tileMap[mapSize - 5][5] = 3; 
     }
 
     function populateSeoul(count) {
@@ -391,14 +324,9 @@
             let rx = Math.floor(Math.random() * (mapSize - 4)) + 2;
             let ry = Math.floor(Math.random() * (mapSize - 4)) + 2;
             
-            if (tileMap[ry][rx] === 7 || tileMap[ry][rx] === 13) ry -= 3;
+            if (tileMap[ry][rx] === 7 || tileMap[ry][rx] === 11 || tileMap[ry][rx] === 12) ry -= 3;
 
-            let type = "";
-            if (currentScenario === 1) {
-                type = (Math.random() < 0.3) ? "raider" : "citizen"; 
-            } else {
-                type = (Math.random() < 0.3) ? "guard" : "zombie"; 
-            }
+            let type = (Math.random() < 0.3) ? "guard" : "citizen"; 
             citizens.push({ id: i, x: rx, y: ry, type: type, isDead: false });
         }
     }
@@ -411,7 +339,9 @@
             let nX = person.x + randDir.x; let nY = person.y + randDir.y;
 
             if (nX > 0 && nX < mapSize - 1 && nY > 0 && nY < mapSize - 1) {
-                if (tileMap[nY][nX] !== 1 && tileMap[nY][nX] !== 7 && tileMap[nY][nX] !== 3 && tileMap[nY][nX] !== 17) {
+                let nextTile = tileMap[nY][nX];
+                // [버그 수정] 아파트단지(11)와 남산타워(12) 오브젝트 타일도 관통하지 못하도록 수정
+                if (nextTile !== 1 && nextTile !== 7 && nextTile !== 3 && nextTile !== 11 && nextTile !== 12) {
                     person.x = nX; person.y = nY;
                 }
             }
@@ -451,7 +381,6 @@
                     ctx.fillStyle = "#090a0f"; ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
                     ctx.fillText("🔘", x * tileSize + 6, y * tileSize + 30);
                 } else {
-                    // 시나리오 1 타일 렌더링
                     if (tileType === 1) ctx.fillText("🌲", x * tileSize + 6, y * tileSize + 30);
                     else if (tileType === 3) ctx.fillText("🏰", x * tileSize + 6, y * tileSize + 30);
                     else if (tileType === 7) {
@@ -464,24 +393,6 @@
                     }
                     else if (tileType === 11) ctx.fillText("🏢", x * tileSize + 6, y * tileSize + 30);
                     else if (tileType === 12) ctx.fillText("🗼", x * tileSize + 6, y * tileSize + 30);
-                    
-                    // 시나리오 2 타일 렌더링
-                    else if (tileType === 13) {
-                        ctx.fillStyle = "#222"; ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                        ctx.fillText("🛤️", x * tileSize + 6, y * tileSize + 30);
-                    }
-                    else if (tileType === 14) {
-                        ctx.fillStyle = "#5758bb"; ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                        ctx.fillText("🪜", x * tileSize + 6, y * tileSize + 30);
-                    }
-                    else if (tileType === 15) ctx.fillText("⛺", x * tileSize + 6, y * tileSize + 30);
-                    else if (tileType === 16) ctx.fillText("🎰", x * tileSize + 6, y * tileSize + 30);
-                    else if (tileType === 17) ctx.fillText("🚪", x * tileSize + 6, y * tileSize + 30);
-                    else if (tileType === 0 && currentScenario === 2) {
-                        // 독가스가 가득한 지하철 일반 바닥 표현
-                        ctx.fillStyle = "#2c4c38"; ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                        ctx.fillText("💨", x * tileSize + 6, y * tileSize + 30);
-                    }
                 }
             }
         }
@@ -491,10 +402,7 @@
             if (fogMap[p.y][p.x] === 1) {
                 let gScreenX = p.x - cameraX; let gScreenY = p.y - cameraY;
                 if (gScreenX >= 0 && gScreenX < viewTiles && gScreenY >= 0 && gScreenY < viewTiles) {
-                    if (p.type === "raider") ctx.fillText("🥷", gScreenX * tileSize + 4, gScreenY * tileSize + 32);
-                    else if (p.type === "citizen") ctx.fillText("🏃", gScreenX * tileSize + 4, gScreenY * tileSize + 32);
-                    else if (p.type === "zombie") ctx.fillText("🧟", gScreenX * tileSize + 4, gScreenY * tileSize + 32);
-                    else if (p.type === "guard") ctx.fillText("💂", gScreenX * tileSize + 4, gScreenY * tileSize + 32);
+                    ctx.fillText(p.type === "guard" ? "👮" : "🏃", gScreenX * tileSize + 4, gScreenY * tileSize + 32);
                 }
             }
         });
@@ -515,10 +423,8 @@
                 else {
                     let type = tileMap[y][x];
                     if (type === 7) mCtx.fillStyle = "#2571f5";
-                    else if (type === 13) mCtx.fillStyle = "#111111";
-                    else if (type === 8 || type === 14) mCtx.fillStyle = "#a4b0be";
-                    else if (type === 3 || type === 17) mCtx.fillStyle = "#e84118";
-                    else if (type === 0 && currentScenario === 2) mCtx.fillStyle = "#1e3d24"; // 미니맵 독가스색
+                    else if (type === 8) mCtx.fillStyle = "#a4b0be";
+                    else if (type === 3) mCtx.fillStyle = "#e84118";
                     else mCtx.fillStyle = "#3d424d";
                 }
                 mCtx.fillRect(x * mScale, y * mScale, mScale, mScale);
@@ -548,21 +454,9 @@
         else return;
 
         if (nextX >= 0 && nextX < mapSize && nextY >= 0 && nextY < mapSize) {
-            // 한강수로나 외벽 숲은 통과 불가
             if (tileMap[nextY][nextX] !== 1 && tileMap[nextY][nextX] !== 7) {
                 playerPos.x = nextX; playerPos.y = nextY;
                 
-                // [시나리오 2 가스 디버프 로직] 선로나 통로(13, 14), 시설 타일이 아닌 가스 가득한 일반 바닥(0)을 밟을 때 피해
-                if (currentScenario === 2 && tileMap[playerPos.y][playerPos.x] === 0) {
-                    player.hp = Math.max(0, player.hp - 15);
-                    if (player.hp <= 0) {
-                        alert("💀 콜록..! 거대 코뿔소의 독가스에 중독되어 쓰러졌습니다. 안전 구역으로 후송됩니다.");
-                        playerCoin = Math.floor(playerCoin * 0.7);
-                        player.hp = Math.floor(player.maxHp * 0.5);
-                        playerPos = { x: 5, y: 5 }; // 지하 안전 리스폰 구역으로 이동
-                    }
-                }
-
                 moveSeoulites(); 
                 clearFog();
                 drawMap();
@@ -582,34 +476,14 @@
 
         let currentTile = tileMap[playerPos.y][playerPos.x];
 
-        // 시나리오 1 클리어 거점 -> 시나리오 2 이동
         if (currentTile === 3) {
             if (playerCoin >= 20000) {
-                alert("🚨 [시나리오 2 발생] 🚨\n\n지상에 거대 코뿔소가 출현하여 치명적인 독가스를 살포하기 시작했습니다!!\n지상이 매우 위험하니 신속하게 지하철역 안으로 대피하십시오!!");
-                currentScenario = 2;
-                playerPos = { x: 5, y: 5 }; 
-                initSubwayMap();
-                populateSeoul(15);
-                applyScenarioUI();
-                updateQuestUI();
-                clearFog();
-                drawMap();
-                saveCharacterProgress();
-            } else {
-                alert(`🏰 용산 중앙본부: "수금한 자금이 부족하다. 최소 20,000 코인이 필요하다." (현재: ${playerCoin.toLocaleString()}🪙)`);
-                playerPos.y += 1; drawMap();
-            }
-        }
-
-        // 시나리오 2 최종 클리어 거점
-        if (currentTile === 17) {
-            if (playerCoin >= 50000) {
-                alert("🚪 [지하 통제실 폐쇄 필터 작동] 역내로 유입되던 독가스를 성공적으로 차단했습니다!\n거대 코뿔소의 위협을 막아내고 구역을 구했습니다. 올 클리어!");
+                alert("🏰 [용산 본부 함락] 서울 전역의 생명력을 약탈하여 마침내 중앙 통제실을 장악했습니다. 시나리오 1 클리어!");
                 gameState = "clear";
                 localStorage.removeItem(`rpg_seoul_slot_${playerJob}`);
                 setTimeout(() => { location.reload(); }, 500);
             } else {
-                alert(`🚪 지하 통제실: "비상 정화 시스템을 가동하려면 추가 전력 자금이 필요합니다." (현재: ${playerCoin.toLocaleString()} / 50,000 🪙)`);
+                alert(`🏰 서울 중앙본부: "약탈 자금이 20,000 코인에 미치지 못합니다. 도시 내부의 생명체들을 더 숙청하십시오." (현재: ${playerCoin}🪙)`);
                 playerPos.y += 1; drawMap();
             }
         }
@@ -620,29 +494,22 @@
 
     function startBattle(mobType) {
         gameState = "battle";
-        
-        if (mobType === "raider") {
-            document.getElementById("battleTitle").innerText = "💥 서울 시가전 결투 💥";
-            enemy = { name: "사설 무장 약탈단 정예병", emoji: "🥷", hp: 4500, maxHp: 4500, attack: 410, rewardCoin: 3500 };
-            logBox.innerHTML = `<p style='color:#e84118; font-weight:bold;'>📢 [약탈자 조우] 중무장한 사설 약탈단 무리와 마주쳤습니다.</p>`;
-        } else if (mobType === "citizen") {
-            document.getElementById("battleTitle").innerText = "💥 서울 시가전 결투 💥";
-            enemy = { name: "황무지 부랑자 / 생존자", emoji: "🏃", hp: 600, maxHp: 600, attack: 40, rewardCoin: 800 };
-            logBox.innerHTML = `<p style='color:#fbc531;'>📢 [부랑자 조우] 약소 생존자를 제압하여 소량의 자금을 뺏습니다.</p>`;
-        } 
-        // 시나리오 2 몹 셋팅
-        else if (mobType === "guard") {
-            document.getElementById("battleTitle").innerText = "💥 지하철 역사 교전 💥";
-            enemy = { name: "역사 사설 경비대 군벌", emoji: "💂", hp: 8500, maxHp: 8500, attack: 650, rewardCoin: 8000 };
-            logBox.innerHTML = `<p style='color:#e84118; font-weight:bold;'>📢 [지하 군벌 대치] 폐역을 장악한 악랄한 경비 부대장입니다. 화력이 아주 높습니다.</p>`;
-        } else if (mobType === "zombie") {
-            document.getElementById("battleTitle").innerText = "💥 지하철 역사 교전 💥";
-            enemy = { name: "선로 식인종 변이체", emoji: "🧟", hp: 1800, maxHp: 1800, attack: 120, rewardCoin: 2000 };
-            logBox.innerHTML = `<p style='color:#4cd137;'>📢 [변이 생명체 급습] 가스를 마시고 흉포하게 변해버린 지하의 변이 식인종입니다.</p>`;
+        if (mobType === "guard") {
+            enemy = { name: "수도방위사령부 특수경비대원", emoji: "👮", hp: 4500, maxHp: 4500, attack: 410, rewardCoin: 3500 };
+            logBox.innerHTML = `<p style='color:#e84118; font-weight:bold;'>📢 [경보 발생] 중무장한 서울 수방사 경비 대원과 충돌했습니다. 제거 시 고액의 코인을 강탈합니다.</p>`;
+        } else {
+            enemy = { name: "서울시 피난민 / 무고한 시민", emoji: "🏃", hp: 600, maxHp: 600, attack: 40, rewardCoin: 800 };
+            logBox.innerHTML = `<p style='color:#fbc531;'>📢 [민간인 조우] 도망치려 하는 무고한 서울 시민의 가로막기를 격파하고 코인을 강탈합니다.</p>`;
         }
 
         document.getElementById("m-name").innerText = enemy.name;
         document.getElementById("m-emoji").innerText = enemy.emoji;
+        
+        // 전투 진입 시 버튼 활성화 초기화
+        document.getElementById("atkBtn").disabled = false;
+        document.getElementById("healBtn").disabled = false;
+        document.getElementById("runBtn").disabled = false;
+
         updateBattleUI();
         overlay.classList.add("active");
     }
@@ -660,15 +527,16 @@
     function fightRound(action) {
         document.getElementById("atkBtn").disabled = true;
         document.getElementById("healBtn").disabled = true;
+        document.getElementById("runBtn").disabled = true;
 
         if (action === 'attack') {
             let pDmg = player.attack + Math.floor(Math.random() * 50);
             enemy.hp = Math.max(0, enemy.hp - pDmg);
-            logBox.innerHTML += `<p>⚔️ 무법자의 공격! <b>${pDmg}</b>의 데미지를 입혔습니다.</p>`;
+            logBox.innerHTML += `<p>⚔️ 용사의 공격: <b>${pDmg}</b>의 충격량 발생.</p>`;
         } else {
             let heal = 800;
             player.hp = Math.min(player.maxHp, player.hp + heal);
-            logBox.innerHTML += `<p style='color:#4cd137;'>✨ 휴대용 메디킷을 투여합니다. (+<b>${heal}</b> HP)</p>`;
+            logBox.innerHTML += `<p style='color:#4cd137;'>✨ 체력 강제 재생 장치 복구. (+<b>${heal}</b> HP)</p>`;
         }
         updateBattleUI();
         logBox.scrollTop = logBox.scrollHeight;
@@ -676,7 +544,7 @@
         if (enemy.hp <= 0) {
             setTimeout(() => {
                 playerCoin += enemy.rewardCoin;
-                alert(`💀 처단 완료! 수금 자금: +${enemy.rewardCoin.toLocaleString()} 코인을 확보했습니다.`);
+                alert(`💀 생명 처단 완료. 수금액: +${enemy.rewardCoin.toLocaleString()} 코인`);
                 
                 if (activeMobIndex !== -1) {
                     citizens[activeMobIndex].isDead = true; 
@@ -691,13 +559,13 @@
         setTimeout(() => {
             let eDmg = enemy.attack + Math.floor(Math.random() * 20);
             player.hp = Math.max(0, player.hp - eDmg);
-            logBox.innerHTML += `<p style='color:#e84118;'>💥 [${enemy.name}]의 거센 반격! <b>${eDmg}</b> 피해.</p>`;
+            logBox.innerHTML += `<p style='color:#e84118;'>💥 [${enemy.name}]의 반격! <b>${eDmg}</b> 피해.</p>`;
             updateBattleUI();
             logBox.scrollTop = logBox.scrollHeight;
 
             if (player.hp <= 0) {
                 setTimeout(() => {
-                    alert("💀 치명상을 입고 패배했습니다. 코인의 30%를 강탈당하며 안전 구역으로 후송됩니다.");
+                    alert("💀 진압당했습니다. 코인의 30%를 강제 유실하며 강북 외곽으로 강제 후송됩니다.");
                     playerCoin = Math.floor(playerCoin * 0.7);
                     updateQuestUI();
                     endBattle(true);
@@ -705,8 +573,26 @@
             } else {
                 document.getElementById("atkBtn").disabled = false;
                 document.getElementById("healBtn").disabled = false;
+                document.getElementById("runBtn").disabled = false;
             }
         }, 500);
+    }
+
+    // [신규 기능] 전투 도망치기 알고리즘
+    function escapeBattle() {
+        if (confirm("경비대나 시민으로부터 도망치시겠습니까? (안전하게 인근으로 후퇴)")) {
+            alert("🏃 결투 지역에서 황급히 이탈하여 후퇴했습니다.");
+            
+            // 플레이어를 안전한 이전 스폰 포인트 근처나 현재 자리 한 칸 옆으로 강제 이동시켜 무한 루프 차단
+            playerPos.x = Math.max(2, playerPos.x - 1);
+            playerPos.y = Math.max(2, playerPos.y - 1);
+            
+            overlay.classList.remove("active");
+            gameState = "explore";
+            clearFog();
+            drawMap();
+            saveCharacterProgress();
+        }
     }
 
     function endBattle(isPlayerDead) {
@@ -714,6 +600,7 @@
         gameState = "explore";
         document.getElementById("atkBtn").disabled = false;
         document.getElementById("healBtn").disabled = false;
+        document.getElementById("runBtn").disabled = false;
 
         if (isPlayerDead) {
             player.hp = Math.floor(player.maxHp * 0.5);
